@@ -1,15 +1,21 @@
 package com.lucas.xxcall;
 
 import static com.lucas.xxcall.ui.dashboard.DashboardFragment.PICK_FILE_REQUEST_CODE;
+import static com.lucas.xxcall.ui.dashboard.DashboardFragment.STORAGE_PERMISSION_REQUEST_CODE;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.blankj.utilcode.util.UriUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -25,6 +31,8 @@ import org.greenrobot.eventbus.ThreadMode;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainmainBinding binding;
+    //拨号请求码
+    public static final int REQUEST_CALL_PERMISSION = 10111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +52,50 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+
+        // 检查权限
+        checkStoragePermission();
+        checkReadPermission2(Manifest.permission.CALL_PHONE, REQUEST_CALL_PERMISSION);
+    }
+
+
+    //打电话申请权限，
+    public boolean checkReadPermission2(String string_permission, int request_code) {
+        boolean flag = false;
+//已有权限
+        if (ContextCompat.checkSelfPermission(this, string_permission) == PackageManager.PERMISSION_GRANTED) {
+            flag = true;
+        } else {
+//申请权限
+            ActivityCompat.requestPermissions(this, new String[]{string_permission}, request_code);
+        }
+        return flag;
+    }
+
+
+    // 检查存储权限
+    private void checkStoragePermission() {
+        // 如果Android版本在Marshmallow以上，需要动态请求权限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED) {
+                // 如果权限没有被授予，请求权限
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CALL_PHONE},
+                        STORAGE_PERMISSION_REQUEST_CODE);
+            } else {
+                // 权限已经被授予
+                // 在这里处理您的逻辑
+            }
+        } else {
+            // 如果Android版本在Marshmallow以下，无需请求权限
+            // 在这里处理您的逻辑
+        }
+
+
     }
 
     // 启动文件选择器

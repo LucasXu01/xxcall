@@ -57,8 +57,7 @@ public class DashboardFragment extends Fragment {
 
     public static final int PICK_FILE_REQUEST_CODE = 1;
     public static final int STORAGE_PERMISSION_REQUEST_CODE = 100;
-    //拨号请求码
-    public static final int REQUEST_CALL_PERMISSION = 10111;
+
 
 
     private Button button_dual_sim_settings;
@@ -153,9 +152,8 @@ public class DashboardFragment extends Fragment {
         });
 
 
-        // 检查权限
-        checkStoragePermission();
-        checkReadPermission2(Manifest.permission.CALL_PHONE, REQUEST_CALL_PERMISSION);
+
+
 
 
         recyclerView = rootView.findViewById(R.id.recyclerView);
@@ -260,28 +258,7 @@ public class DashboardFragment extends Fragment {
     }
 
 
-    // 检查存储权限
-    private void checkStoragePermission() {
-        // 如果Android版本在Marshmallow以上，需要动态请求权限
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
-                // 如果权限没有被授予，请求权限
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CALL_PHONE},
-                        STORAGE_PERMISSION_REQUEST_CODE);
-            } else {
-                // 权限已经被授予
-                // 在这里处理您的逻辑
-            }
-        } else {
-            // 如果Android版本在Marshmallow以下，无需请求权限
-            // 在这里处理您的逻辑
-        }
 
-    }
 
 
     // 启动文件选择器
@@ -332,18 +309,7 @@ public class DashboardFragment extends Fragment {
     }
 
 
-    //打电话申请权限，
-    public boolean checkReadPermission2(String string_permission, int request_code) {
-        boolean flag = false;
-//已有权限
-        if (ContextCompat.checkSelfPermission(getActivity(), string_permission) == PackageManager.PERMISSION_GRANTED) {
-            flag = true;
-        } else {
-//申请权限
-            ActivityCompat.requestPermissions(getActivity(), new String[]{string_permission}, request_code);
-        }
-        return flag;
-    }
+
 
 
     private final static String simSlotName[] = {

@@ -14,7 +14,7 @@ public class PhoneStateReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ToastUtils.showShort("电话开始准备下一个");
+        Log.e("xujinjinjin", "onReceive: ");
         // 获取电话管理器
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         if (telephonyManager != null) {
