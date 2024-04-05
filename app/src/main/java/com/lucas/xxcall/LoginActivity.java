@@ -19,7 +19,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login22);
 
 
         // 如果权限未被授予，请求权限
@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
             window.setStatusBarColor(Color.TRANSPARENT);
         }
 
-        View view = findViewById(R.id.view);
+        View view = findViewById(R.id.btn_login);
         view.setOnClickListener(v->{
                 Intent intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
