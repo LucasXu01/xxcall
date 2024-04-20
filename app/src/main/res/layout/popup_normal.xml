@@ -3,25 +3,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@android:color/white"
+    android:background="@drawable/lib_ui_bg_f5f8fa_radius_22"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    >
 
     <TextView
         android:id="@+id/tx_1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="新建号码库"
+        android:text="  ❶  新建号码库  "
         android:textColor="@android:color/black"
-        android:textSize="18sp" />
+        android:textSize="16dp" />
 
     <TextView
         android:id="@+id/tx_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="删除号码库"
+        android:text="  ❷  删除号码库  "
         android:textColor="@android:color/black"
-        android:textSize="18sp"
+        android:textSize="16dp"
         android:layout_marginTop="16dp" />
 
     <!-- 添加更多需要的视图 -->

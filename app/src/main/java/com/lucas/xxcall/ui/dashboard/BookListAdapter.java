@@ -10,14 +10,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.lucas.xxcall.PhoneBean;
 import com.lucas.xxcall.R;
+import com.lucas.xxcall.bean.BookBean;
 
 import java.util.List;
 
 public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.PhoneViewHolder> {
-    private List<PhoneBean> phoneList;
+    private List<BookBean> bookList;
 
-    public BookListAdapter(List<PhoneBean> phoneList) {
-        this.phoneList = phoneList;
+    public BookListAdapter(List<BookBean> phoneList) {
+        this.bookList = phoneList;
     }
 
     private OnPhoneItemClickListener onPhoneItemClickListener;
@@ -31,15 +32,14 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.PhoneV
     @NonNull
     @Override
     public PhoneViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_phone, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_book, parent, false);
         return new PhoneViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull PhoneViewHolder holder, int position) {
-        PhoneBean phone = phoneList.get(position);
-        holder.nameTextView.setText(phone.Name);
-        holder.phoneTextView.setText(phone.Phone);
+        BookBean bookBean = bookList.get(position);
+        holder.book.setText(bookBean.bookName);
 
         holder.xiugai.setOnClickListener(v->{
             if (position != RecyclerView.NO_POSITION) {
@@ -50,18 +50,16 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.PhoneV
 
     @Override
     public int getItemCount() {
-        return phoneList.size();
+        return bookList.size();
     }
 
     static class PhoneViewHolder extends RecyclerView.ViewHolder {
-        TextView nameTextView;
-        TextView phoneTextView;
+        TextView book;
         TextView xiugai;
 
         public PhoneViewHolder(@NonNull View itemView) {
             super(itemView);
-            nameTextView = itemView.findViewById(R.id.nameTextView);
-            phoneTextView = itemView.findViewById(R.id.phoneTextView);
+            book = itemView.findViewById(R.id.book);
             xiugai = itemView.findViewById(R.id.xiugai);
         }
     }
