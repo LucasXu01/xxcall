@@ -1,4 +1,4 @@
-package com.lucas.xxcall;
+package com.lucas.xxcall.login;
 
 import android.Manifest;
 import android.content.Intent;
@@ -11,6 +11,9 @@ import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
+import com.lucas.xxcall.MainActivity;
+import com.lucas.xxcall.R;
 
 public class LoginActivity extends AppCompatActivity {
 

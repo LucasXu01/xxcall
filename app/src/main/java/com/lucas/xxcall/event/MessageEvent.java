@@ -1,4 +1,4 @@
-package com.lucas.xxcall;
+package com.lucas.xxcall.event;
 
 import java.io.Serializable;
 

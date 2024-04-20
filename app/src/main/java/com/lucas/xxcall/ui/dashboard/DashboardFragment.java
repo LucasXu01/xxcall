@@ -16,28 +16,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.utilcode.util.ToastUtils;
 import com.blankj.utilcode.util.UriUtils;
-import com.lucas.xxcall.CustomDialog;
-import com.lucas.xxcall.CustomDialog2;
-import com.lucas.xxcall.IntervalInputDialog;
-import com.lucas.xxcall.MessageEvent;
-import com.lucas.xxcall.MessageEvent2;
-import com.lucas.xxcall.ModifyPhoneInputDialog;
+import com.lucas.xxcall.widgets.CustomDialog;
+import com.lucas.xxcall.widgets.CustomDialog2;
+import com.lucas.xxcall.widgets.IntervalInputDialog;
+import com.lucas.xxcall.event.MessageEvent;
+import com.lucas.xxcall.event.MessageEvent2;
+import com.lucas.xxcall.widgets.ModifyPhoneInputDialog;
 import com.lucas.xxcall.PhoneAdapter;
 import com.lucas.xxcall.PhoneBean;
 import com.lucas.xxcall.R;
-import com.lucas.xxcall.databinding.FragmentDashboardBinding;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

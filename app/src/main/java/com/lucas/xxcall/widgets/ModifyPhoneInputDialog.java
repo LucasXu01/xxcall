@@ -1,4 +1,4 @@
-package com.lucas.xxcall;
+package com.lucas.xxcall.widgets;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -9,6 +9,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.lucas.xxcall.R;
 
 public class ModifyPhoneInputDialog extends Dialog {
 

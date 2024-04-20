@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import com.blankj.utilcode.util.UriUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,8 +20,8 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.lucas.xxcall.databinding.ActivityMainBinding;
 import com.lucas.xxcall.databinding.ActivityMainmainBinding;
+import com.lucas.xxcall.event.MessageEvent2;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
