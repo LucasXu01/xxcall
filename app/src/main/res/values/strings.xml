@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">xxcall</string>
-    <string name="title_home">电销</string>
-    <string name="title_dashboard">客户</string>
+    <string name="app_name">caller</string>
+    <string name="title_dashboard">电销</string>
     <string name="title_notifications">我</string>
 </resources>

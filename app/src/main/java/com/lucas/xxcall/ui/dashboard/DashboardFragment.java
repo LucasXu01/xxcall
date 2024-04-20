@@ -82,10 +82,6 @@ public class DashboardFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.activity_main, container, false);
 
 
-
-
-        EventBus.getDefault().register(this);
-
         button_add_from_clipboard = rootView.findViewById(R.id.button_add_from_clipboard);
         button_dual_sim_settings = rootView.findViewById(R.id.button_dual_sim_settings);
         button_start_auto_dial = rootView.findViewById(R.id.button_start_auto_dial);
@@ -224,6 +220,12 @@ public class DashboardFragment extends Fragment {
         return rootView;
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        EventBus.getDefault().register(this);
+    }
 
     private List<PhoneBean> parseClipboardText(String clipboardText) {
         List<PhoneBean> phoneList = new ArrayList<>();
