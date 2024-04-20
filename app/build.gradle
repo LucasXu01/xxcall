@@ -47,4 +47,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.blankj:utilcode:1.30.7'
     implementation("org.greenrobot:eventbus:3.3.1")
+    implementation("org.litepal.guolindev:core:3.2.3")
+    implementation 'io.github.razerdp:BasePopup:3.2.1'
+    implementation ('com.github.li-xiaojun:XPopup:2.10.0')
 }

@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,8 @@ import com.lucas.xxcall.widgets.ModifyPhoneInputDialog;
 import com.lucas.xxcall.PhoneAdapter;
 import com.lucas.xxcall.PhoneBean;
 import com.lucas.xxcall.R;
+import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -48,419 +51,123 @@ import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
+import razerdp.basepopup.QuickPopupBuilder;
+import razerdp.basepopup.QuickPopupConfig;
+
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class DashboardFragment extends Fragment {
 
     public static final int PICK_FILE_REQUEST_CODE = 1;
     public static final int STORAGE_PERMISSION_REQUEST_CODE = 100;
-
-
-
-    private Button button_dual_sim_settings;
-    private Button button_interval_duration;
-    private Button button_start_auto_dial;
-    private Button button;
-    private ImageView img;
-    private ImageView img2;
     private RecyclerView recyclerView;
-    private PhoneAdapter adapter;
+    private BookListAdapter adapter;
     private List<PhoneBean> phoneList = new ArrayList<>();
-    private int 间隔时间 = 3;
-    private int 拨打卡号 = 0; // 0为sim1   1为sim2
-    private int preSim = 0;
+    private PopupWindow popupWindow;
 
-    Button uncalledButton;
-    Button calledButton;
-    Button button_add_from_clipboard;
-
-    public int Position = 0;
+    ImageView addbook;
+    ImageView imgnodata;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.activity_main, container, false);
+        View rootView = inflater.inflate(R.layout.activity_home_book, container, false);
 
 
-        button_add_from_clipboard = rootView.findViewById(R.id.button_add_from_clipboard);
-        button_dual_sim_settings = rootView.findViewById(R.id.button_dual_sim_settings);
-        button_start_auto_dial = rootView.findViewById(R.id.button_start_auto_dial);
-        button_interval_duration = rootView.findViewById(R.id.button_interval_duration);
-        // 点击按钮触发文件选择操作
-        button = rootView.findViewById(R.id.button_select_file);
-        button.setOnClickListener(view -> pickExcelFile());
-        img2 = rootView.findViewById(R.id.img2);
-        img2.setOnClickListener(view -> {
-            CustomDialog2 dialog = new CustomDialog2(getActivity());
-            dialog.show();
-        });
-        img = rootView.findViewById(R.id.img);
-        img.setOnClickListener(view -> {
-            CustomDialog dialog = new CustomDialog(getActivity());
-            dialog.show();
-        });
-        button_interval_duration.setOnClickListener(v -> {
-            IntervalInputDialog dialog = new IntervalInputDialog(getActivity());
-            dialog.setOnIntervalSetListener(new IntervalInputDialog.OnIntervalSetListener() {
-                @Override
-                public void onIntervalSet(int interval) {
-                    // 在这里处理用户输入的间隔参数
-                    // interval 即为用户输入的间隔参数
-                    间隔时间 = interval;
-//                    ToastUtils.showShort("已设置间隔为" + interval + "秒");
-                    button_interval_duration.setText("间隔时长（" + interval + "s）");
+        addbook = rootView.findViewById(R.id.addbook);
+        imgnodata = rootView.findViewById(R.id.imgnodata);
 
-                }
-            });
-            dialog.show();
-
-        });
-
-        button_start_auto_dial.setOnClickListener(v -> {
-            gotoCallPhone();
-
-        });
-
-//        设置拨打的sim卡
-        button_dual_sim_settings.setOnClickListener(V->{
-            if ( 拨打卡号 == 0) {
-                拨打卡号 = 1;
-                button_dual_sim_settings.setText("双卡设置（卡2）");
-                return;
-            }
-
-            if ( 拨打卡号 == 1) {
-                拨打卡号 = 2;
-                button_dual_sim_settings.setText("双卡设置（卡12轮播）");
-                return;
-            }
-
-            if ( 拨打卡号 == 2) {
-                拨打卡号 = 0;
-                button_dual_sim_settings.setText("双卡设置（卡1）");
-                return;
-            }
-
-        });
+//        recyclerView = rootView.findViewById(R.id.recyclerView);
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+//        recyclerView.setLayoutManager(layoutManager);
+//        adapter = new BookListAdapter(phoneList);
+//        recyclerView.setAdapter(adapter);
+//
+//
+//        adapter.setOnPhoneItemClickListener(new BookListAdapter.OnPhoneItemClickListener() {
+//            @Override
+//            public void onItemClick(int position) {
+//
+//                ModifyPhoneInputDialog dialog = new ModifyPhoneInputDialog(getActivity(), phoneList.get(position).Phone);
+//                dialog.setOnIntervalSetListener(new ModifyPhoneInputDialog.OnModifySetListener() {
+//                    @Override
+//                    public void onModify(String newPhone) {
+//                        phoneList.get(position).Phone = newPhone;
+//                        adapter.notifyItemChanged(position);
+//                    }
+//                });
+//                dialog.show();
+//
+//
+//            }
+//        });
 
 
 
 
+        initPopupWindow();
+        // 点击按钮显示PopupWindow
+        addbook.setOnClickListener(v -> showPopup(v));
 
-
-        recyclerView = rootView.findViewById(R.id.recyclerView);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(layoutManager);
-        adapter = new PhoneAdapter(phoneList);
-        recyclerView.setAdapter(adapter);
-
-
-        adapter.setOnPhoneItemClickListener(new PhoneAdapter.OnPhoneItemClickListener() {
-            @Override
-            public void onItemClick(int position) {
-
-                ModifyPhoneInputDialog dialog = new ModifyPhoneInputDialog(getActivity(), phoneList.get(position).Phone);
-                dialog.setOnIntervalSetListener(new ModifyPhoneInputDialog.OnModifySetListener() {
-                    @Override
-                    public void onModify(String newPhone) {
-                        phoneList.get(position).Phone = newPhone;
-                        adapter.notifyItemChanged(position);
-                    }
-                });
-                dialog.show();
-
-
-            }
-        });
-
-
-        uncalledButton = rootView.findViewById(R.id.uncalledButton);
-        uncalledButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Position = 0 ;
-                updateList(false);
-                calledButton.setAlpha(0.5f);
-                uncalledButton.setAlpha(1f);
-            }
-        });
-
-        calledButton = rootView.findViewById(R.id.calledButton);
-        calledButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Position = 1 ;
-                updateList(true);
-                calledButton.setAlpha(1f);
-                uncalledButton.setAlpha(0.5f);
-            }
-        });
-
-
-
-        // 导入剪切板
-        button_add_from_clipboard.setOnClickListener(v->{
-            ClipboardManager clipboardManager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-            if (clipboardManager != null && clipboardManager.hasPrimaryClip()) {
-                CharSequence clipboardText = clipboardManager.getPrimaryClip().getItemAt(0).getText();
-                if (!TextUtils.isEmpty(clipboardText)) {
-                    List<PhoneBean> clipboardList = parseClipboardText(clipboardText.toString());
-
-                    //添加到列表中
-                    if (clipboardList != null && clipboardList.size() >0){
-                        phoneList.addAll(0, clipboardList);
-                        adapter.notifyDataSetChanged();
-                    }
-                }
-            }
-
-        });
 
 
         return rootView;
     }
 
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        EventBus.getDefault().register(this);
+    private void showPopup(View anchorView) {
+        QuickPopupBuilder.with(getContext())
+                .contentView(R.layout.popup_normal)
+                .config(new QuickPopupConfig()
+                        .gravity(Gravity.LEFT | Gravity.BOTTOM)
+                        .withClick(R.id.tx_1, v -> new XPopup.Builder(getContext()).asInputConfirm("新建号码库", "请输入内容。",
+                                        text -> {
+
+                                        })
+                                .show())
+                        .withClick(R.id.tx_2, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Toast.makeText(getContext(), "clicked", Toast.LENGTH_LONG).show();
+                            }
+                        })
+
+                )
+                .show(anchorView);
     }
 
-    private List<PhoneBean> parseClipboardText(String clipboardText) {
-        List<PhoneBean> phoneList = new ArrayList<>();
-        String[] lines = clipboardText.split("\n");
-        for (String line : lines) {
-            String[] parts = line.split(" ");
-            if (parts.length == 2) {
-                String name = parts[0];
-                String phone = parts[1];
-                PhoneBean phoneBean = new PhoneBean(name, phone);
-                phoneList.add(phoneBean);
+    private void initPopupWindow(){
+        // 初始化PopupWindow中的数据
+        List<String> options = new ArrayList<>();
+        options.add("新建号码库");
+        options.add("删除号码库");
+
+        // 初始化PopupWindow
+        LayoutInflater inflater2 = LayoutInflater.from(getActivity());
+        View popupView = inflater2.inflate(R.layout.popup_window, null);
+        ListView listView = popupView.findViewById(R.id.listView);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, options);
+        listView.setAdapter(adapter);
+
+        // 创建PopupWindow
+        popupWindow = new PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+        // 点击选项的回调
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedItem = (String) parent.getItemAtPosition(position);
+                Toast.makeText(getActivity(), "You selected: " + selectedItem, Toast.LENGTH_SHORT).show();
+
+                popupWindow.dismiss();
             }
-        }
-        return phoneList;
-    }
-
-    // 根据isCalled字段更新列表显示
-    private void updateList(boolean isCalled) {
-        List<PhoneBean> filteredList = new ArrayList<>();
-        for (PhoneBean phone : phoneList) {
-            if (phone.isCalled == isCalled) {
-                filteredList.add(phone);
-            }
-        }
-        adapter = new PhoneAdapter(filteredList);
-        recyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-    }
-
-
-
-
-
-    // 启动文件选择器
-    private void pickExcelFile() {
-        EventBus.getDefault().post(new MessageEvent2());
-//        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//        intent.setType("application/vnd.ms-excel");
-//        intent.addCategory(Intent.CATEGORY_OPENABLE);
-//        startActivityForResult(Intent.createChooser(intent, "Select Excel File"), PICK_FILE_REQUEST_CODE);
-
-    }
-
-
-
-    // 读取Excel文件并将第一列和第二列的所有内容存储到两个列表中
-    public void readExcelFile(File file) {
-        List<PhoneBean> rawList = new ArrayList<>();
-
-        try {
-            // 创建工作簿对象
-            Workbook workbook = Workbook.getWorkbook(file);
-
-            // 获取第一个工作表
-            Sheet sheet = workbook.getSheet(0);
-
-            // 读取每一行，将第一列和第二列的值存储到列表中
-            for (int i = 1; i < sheet.getRows(); i++) {
-                Cell[] rowCells = sheet.getRow(i);
-                if (rowCells.length >= 2) {
-                    PhoneBean phoneBean = new PhoneBean(rowCells[0].getContents(), rowCells[1].getContents());
-                    rawList.add(phoneBean);
-                }
-            }
-
-            // 关闭工作簿
-            workbook.close();
-
-            phoneList.clear();
-            phoneList.addAll(rawList);
-            adapter.notifyDataSetChanged();
-            rawList.clear();
-
-            calledButton.setAlpha(0.5f);
-
-        } catch (IOException | BiffException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-
-
-    private final static String simSlotName[] = {
-            "extra_asus_dial_use_dualsim",
-            "com.android.phone.extra.slot",
-            "slot",
-            "simslot",
-            "sim_slot",
-            "subscription",
-            "Subscription",
-            "phone",
-            "com.android.phone.DialingMode",
-            "simSlot",
-            "slot_id",
-            "simId",
-            "simnum",
-            "phone_type",
-            "slotId",
-            "slotIdx"};
-
-
-
-    public void callPhone (int position) {
-        if (拨打卡号 == 0) {
-            callPhoneDetail(position, 0);
-            preSim = 0;
-            return;
-        }
-
-        if (拨打卡号 == 1) {
-            callPhoneDetail(position, 1);
-            preSim = 1;
-            return;
-        }
-
-        if (拨打卡号 == 2) {
-            if (preSim == 1){
-                callPhoneDetail(position, 0);
-                preSim = 0;
-            }else {
-                callPhoneDetail(position, 1);
-                preSim = 1;
-            }
-            return;
-        }
-    }
-    /**
-     * 拨打电话（拨号权限自行处理）
-
-     * @param simIndex ：sim卡的位置 0代表sim卡1，1代表sim卡2
-
-     */
-
-    public void callPhoneDetail(int position, int simIndex) {
-
-        PhoneBean phoneBean = phoneList.get(position);
-        phoneList.get(position).isCalled = true;
-        String phoneNum = phoneBean.Phone;
-
-        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNum));
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("com.android.phone.force.slot", true);
-        intent.putExtra("Cdma_Supp", true);
-        //Add all slots here, according to device.. (different device require different key so put all together)
-        for (String s : simSlotName)
-            intent.putExtra(s, simIndex); //0 or 1 according to sim.......
-        //works only for API >= 21
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            try {
-                TelecomManager telecomManager = (TelecomManager) getActivity().getSystemService(Context.TELECOM_SERVICE);
-                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                List<PhoneAccountHandle> phoneAccountHandleList = telecomManager.getCallCapablePhoneAccounts();
-                intent.putExtra("android.telecom.extra.PHONE_ACCOUNT_HANDLE", phoneAccountHandleList.get(simIndex));
-            } catch (Exception e) {
-                e.printStackTrace();
-                //writeLog("No Sim card? at slot " + simNumber+"\n\n"+e.getMessage(), this);
-            }
-        }
-        startActivity(intent);
-    }
-
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageEvent event) {
-        // 处理事件
-        button_dual_sim_settings.postDelayed(() -> {
-            gotoCallPhone();
-        }, 1000 * 间隔时间);
-
-        button_dual_sim_settings.postDelayed(() -> {
-            if (Position == 0) {
-                updateList(false);
-            }
-            if (Position == 1) {
-                updateList(true);
-            }
-        }, 250);
-    }
-
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(Uri uri) {
-        if (uri != null) {
-            try {
-                readExcelFile(UriUtils.uri2File(uri));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
-    public void gotoCallPhone() {
-        if (phoneList.size()<1) {
-            ToastUtils.showShort("还未导入xls文件");
-            return;
-        }
-
-        boolean allCalled = true;
-        if (phoneList.size()>1) {
-            for (PhoneBean phoneBean: phoneList) {
-                if (!phoneBean.isCalled) {
-                    allCalled = false;
-                }
-            }
-            if (allCalled) {
-                ToastUtils.showShort("列表已经全部拨打过电话！");
-                return;
-            }
-
-        }
-
-
-        for (int i = 0 ; i < phoneList.size(); i ++) {
-            if (!phoneList.get(i).isCalled) {
-                ToastUtils.showShort("开始拨打未拨打的电话号码");
-                int finalI = i;
-                button_dual_sim_settings.postDelayed(()->{
-                    callPhone(finalI);
-                }, 1000);
-
-                break;
-            }
-        }
+        });
     }
 
 }
