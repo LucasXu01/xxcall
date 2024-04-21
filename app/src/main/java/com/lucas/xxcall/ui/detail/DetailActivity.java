@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -91,7 +92,7 @@ public class DetailActivity extends AppCompatActivity {
     public BookBean bookBean;
     public View imgnodata;
 
-    public boolean 是否在循环播号 = true;
+    public boolean 是否在循环播号 = false;
     public ImageView imgmore;
     QuickPopupBuilder quickPopupBuilder;
     TextView tvTitle;
@@ -162,13 +163,14 @@ public class DetailActivity extends AppCompatActivity {
         });
 
         button_start_auto_dial.setOnClickListener(v -> {
+            是否在循环播号 = !是否在循环播号;
             gotoCallPhone();
             if (是否在循环播号) {
                 button_start_auto_dial.setText("停止自动拨号");
             }else {
                 button_start_auto_dial.setText("开始自动拨号");
             }
-            是否在循环播号 = !是否在循环播号;
+
         });
 
 //        设置拨打的sim卡
@@ -203,29 +205,8 @@ public class DetailActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new PhoneAdapter(phoneList);
+        adapter.setOnPhoneItemClickListener((position, view) -> showItemPopup( view, phoneList.get(position)));
         recyclerView.setAdapter(adapter);
-
-
-        adapter.setOnPhoneItemClickListener(new PhoneAdapter.OnPhoneItemClickListener() {
-            @Override
-            public void onItemClick(int position, View view) {
-
-                showItemPopup( view, phoneList.get(position));
-
-//                ModifyPhoneInputDialog dialog = new ModifyPhoneInputDialog(DetailActivity.this, phoneList.get(position).Phone);
-//                dialog.setOnIntervalSetListener(new ModifyPhoneInputDialog.OnModifySetListener() {
-//                    @Override
-//                    public void onModify(String newPhone) {
-//                        phoneList.get(position).Phone = newPhone;
-//                        adapter.notifyItemChanged(position);
-//                    }
-//                });
-//                dialog.show();
-
-
-            }
-        });
-
 
         uncalledButton = findViewById(R.id.uncalledButton);
         uncalledButton.setOnClickListener(new View.OnClickListener() {
@@ -274,12 +255,16 @@ public class DetailActivity extends AppCompatActivity {
 
 
         refreshUI();
-        phoneList.addAll(bookBean.phoneBeans);
+        for (PhoneBean phoneBean: bookBean.phoneBeans) {
+            if (phoneBean.isCalled == false) {
+                phoneList.add(phoneBean);
+            }
+        }
         adapter.notifyDataSetChanged();
+
 
         calledButton.setAlpha(0.5f);
         uncalledButton.setAlpha(1f);
-
 
 
         imgmore.setOnClickListener(view -> {
@@ -347,12 +332,64 @@ public class DetailActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onConfirm() {
                                                         phoneBean.delete();
+                                                        phoneList.remove(phoneBean);
+                                                        adapter.notifyDataSetChanged();
                                                         quickPopup.dismiss();
                                                     }
                                                 })
                                         .show();
                             }
                         })
+                        .withClick(R.id.tx_3, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // 添加备注
+                                new XPopup.Builder(DetailActivity.this).asInputConfirm("添加备注", "请输入内容。",
+                                                new OnInputConfirmListener() {
+                                                    @Override
+                                                    public void onConfirm(String text) {
+                                                        phoneBean.beizhu = text;
+                                                        quickPopup.dismiss();
+                                                        adapter.notifyDataSetChanged();
+                                                    }
+                                                })
+                                        .show();
+                            }
+                        })
+                        .withClick(R.id.tx_4, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // 发短信
+                                // 替换成你想要发送短信的手机号
+                                String phoneNumber = phoneBean.Phone;
+                                // 创建发送短信的Intent
+                                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                                // 设置短信发送的目标号码
+                                intent.setData(Uri.parse("smsto:" + phoneNumber));
+                                // 启动发短信页面
+                                startActivity(intent);
+                                quickPopup.dismiss();
+                            }
+                        })
+                                .withClick(R.id.tx_5, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        // 修改名字
+                                        ModifyPhoneInputDialog dialog = new ModifyPhoneInputDialog(DetailActivity.this, phoneBean.Phone);
+                                        dialog.setOnIntervalSetListener(new ModifyPhoneInputDialog.OnModifySetListener() {
+                                            @Override
+                                            public void onModify(String newPhone) {
+                                                phoneBean.Phone = newPhone;
+                                                phoneBean.save();
+                                                adapter.notifyDataSetChanged();
+                                                quickPopup.dismiss();
+                                            }
+                                        });
+                                        dialog.show();
+                                    }
+                                })
+
+
 
                 );
         quickPopup = quickPopupBuilder.build();
@@ -388,12 +425,13 @@ public class DetailActivity extends AppCompatActivity {
     // 根据isCalled字段更新列表显示
     private void updateList(boolean isCalled) {
         List<PhoneBean> filteredList = new ArrayList<>();
-        for (PhoneBean phone : phoneList) {
+        for (PhoneBean phone : bookBean.phoneBeans) {
             if (phone.isCalled == isCalled) {
                 filteredList.add(phone);
             }
         }
         adapter = new PhoneAdapter(filteredList);
+        adapter.setOnPhoneItemClickListener((position, view) -> showItemPopup( view, phoneList.get(position)));
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
@@ -661,6 +699,7 @@ public class DetailActivity extends AppCompatActivity {
 
 
     public void gotoCallPhone() {
+        Log.e("xujinjin", "gotoCallPhone:是否在循环播号 "+ 是否在循环播号);
         if (!是否在循环播号) return;
         if (phoneList.size()<1) {
             ToastUtils.showShort("还未导入xls文件");

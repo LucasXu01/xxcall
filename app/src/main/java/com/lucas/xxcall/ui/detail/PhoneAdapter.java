@@ -1,5 +1,6 @@
 package com.lucas.xxcall.ui.detail;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,8 +42,14 @@ public class PhoneAdapter extends RecyclerView.Adapter<PhoneAdapter.PhoneViewHol
         holder.nameTextView.setText(phone.Name);
         holder.phoneTextView.setText(phone.Phone);
 
+        if (TextUtils.isEmpty(phone.beizhu)){
+            holder.beizhu.setText("");
+        }else {
+            holder.beizhu.setText(phone.beizhu);
+        }
+
         holder.xiugai.setOnClickListener(v->{
-            if (position != RecyclerView.NO_POSITION) {
+            if (position != RecyclerView.NO_POSITION && onPhoneItemClickListener!=null) {
                 onPhoneItemClickListener.onItemClick(position, holder.xiugai);
             }
         });
@@ -57,12 +64,14 @@ public class PhoneAdapter extends RecyclerView.Adapter<PhoneAdapter.PhoneViewHol
         TextView nameTextView;
         TextView phoneTextView;
         ImageView xiugai;
+        TextView beizhu;
 
         public PhoneViewHolder(@NonNull View itemView) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.nameTextView);
             phoneTextView = itemView.findViewById(R.id.phoneTextView);
             xiugai = itemView.findViewById(R.id.xiugai);
+            beizhu = itemView.findViewById(R.id.beizhu);
         }
     }
 

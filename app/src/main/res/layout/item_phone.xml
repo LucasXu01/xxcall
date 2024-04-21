@@ -21,11 +21,25 @@
 
     <TextView
         android:id="@+id/phoneTextView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/nameTextView"
         android:textColor="@color/black"
         android:layout_marginLeft="10dp"
+        android:text="123"
+        />
+
+    <TextView
+        android:id="@+id/beizhu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nameTextView"
+        android:textColor="#61000000"
+        android:layout_marginLeft="20dp"
+        android:layout_toRightOf="@+id/phoneTextView"
+        android:layout_marginRight="100dp"
+        android:maxLines="1"
+        android:ellipsize="end"
         />
 
     <ImageView

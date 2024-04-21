@@ -15,6 +15,7 @@ public class PhoneBean extends LitePalSupport implements Serializable {
     public Long bookid;
 
     public String Phone;
+    public String beizhu;
     public String Name;
     public boolean isCalled;
 

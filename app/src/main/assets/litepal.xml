@@ -2,7 +2,7 @@
 <litepal>
     <dbname value="CallerB"></dbname>
 
-    <version value="10"></version>
+    <version value="11"></version>
 
     <list>
         <mapping class="com.lucas.xxcall.bean.BookBean"></mapping>
