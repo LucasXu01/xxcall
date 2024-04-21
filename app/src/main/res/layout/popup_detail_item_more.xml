@@ -1,0 +1,48 @@
+<!-- popup_normal.xml -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/lib_ui_bg_f5f8fa_radius_22"
+    android:orientation="vertical"
+    android:padding="16dp"
+    >
+
+    <TextView
+        android:id="@+id/tx_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="  ❶  呼叫  "
+        android:textColor="@android:color/black"
+        android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/tx_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="  ❷  删除  "
+        android:textColor="@android:color/black"
+        android:textSize="16dp"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/tx_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="  ❸  添加备注  "
+        android:textColor="@android:color/black"
+        android:textSize="16dp"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/tx_4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="  ❹  发短信  "
+        android:textColor="@android:color/black"
+        android:textSize="16dp"
+        android:layout_marginTop="16dp" />
+
+    <!-- 添加更多需要的视图 -->
+
+</LinearLayout>

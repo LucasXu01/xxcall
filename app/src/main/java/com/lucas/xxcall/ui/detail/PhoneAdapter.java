@@ -3,6 +3,7 @@ package com.lucas.xxcall.ui.detail;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -42,7 +43,7 @@ public class PhoneAdapter extends RecyclerView.Adapter<PhoneAdapter.PhoneViewHol
 
         holder.xiugai.setOnClickListener(v->{
             if (position != RecyclerView.NO_POSITION) {
-                onPhoneItemClickListener.onItemClick(position);
+                onPhoneItemClickListener.onItemClick(position, holder.xiugai);
             }
         });
     }
@@ -55,7 +56,7 @@ public class PhoneAdapter extends RecyclerView.Adapter<PhoneAdapter.PhoneViewHol
     static class PhoneViewHolder extends RecyclerView.ViewHolder {
         TextView nameTextView;
         TextView phoneTextView;
-        TextView xiugai;
+        ImageView xiugai;
 
         public PhoneViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -66,7 +67,7 @@ public class PhoneAdapter extends RecyclerView.Adapter<PhoneAdapter.PhoneViewHol
     }
 
     public interface OnPhoneItemClickListener {
-        void onItemClick(int position);
+        void onItemClick(int position, View view);
     }
 
 }

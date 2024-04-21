@@ -1,6 +1,7 @@
 package com.lucas.xxcall.ui.detail;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
@@ -12,11 +13,14 @@ import android.os.Bundle;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -30,10 +34,14 @@ import com.lucas.xxcall.MainActivity;
 import com.lucas.xxcall.R;
 import com.lucas.xxcall.bean.BookBean;
 import com.lucas.xxcall.event.MessageEvent;
+import com.lucas.xxcall.login.LoginActivity;
 import com.lucas.xxcall.widgets.CustomDialog;
 import com.lucas.xxcall.widgets.CustomDialog2;
 import com.lucas.xxcall.widgets.IntervalInputDialog;
 import com.lucas.xxcall.widgets.ModifyPhoneInputDialog;
+import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.interfaces.OnConfirmListener;
+import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -50,6 +58,9 @@ import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
+import razerdp.basepopup.QuickPopupBuilder;
+import razerdp.basepopup.QuickPopupConfig;
+import razerdp.widget.QuickPopup;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -80,6 +91,14 @@ public class DetailActivity extends AppCompatActivity {
     public BookBean bookBean;
     public View imgnodata;
 
+    public boolean 是否在循环播号 = true;
+    public ImageView imgmore;
+    QuickPopupBuilder quickPopupBuilder;
+    TextView tvTitle;
+
+    QuickPopup quickPopup;
+    QuickPopup quickPopup2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +122,10 @@ public class DetailActivity extends AppCompatActivity {
         bookBean.phoneBeans = LitePal.where("bookid = ?", String.valueOf(bookid)).find(PhoneBean.class);
 
 
+        tvTitle = findViewById(R.id.tv_title);
+        tvTitle.setText(bookBean.bookName);
 
+        imgmore = findViewById(R.id.imgmore);
 
         button_add_from_clipboard = findViewById(R.id.button_add_from_clipboard);
         button_dual_sim_settings = findViewById(R.id.button_dual_sim_settings);
@@ -141,6 +163,12 @@ public class DetailActivity extends AppCompatActivity {
 
         button_start_auto_dial.setOnClickListener(v -> {
             gotoCallPhone();
+            if (是否在循环播号) {
+                button_start_auto_dial.setText("停止自动拨号");
+            }else {
+                button_start_auto_dial.setText("开始自动拨号");
+            }
+            是否在循环播号 = !是否在循环播号;
         });
 
 //        设置拨打的sim卡
@@ -180,17 +208,19 @@ public class DetailActivity extends AppCompatActivity {
 
         adapter.setOnPhoneItemClickListener(new PhoneAdapter.OnPhoneItemClickListener() {
             @Override
-            public void onItemClick(int position) {
+            public void onItemClick(int position, View view) {
 
-                ModifyPhoneInputDialog dialog = new ModifyPhoneInputDialog(DetailActivity.this, phoneList.get(position).Phone);
-                dialog.setOnIntervalSetListener(new ModifyPhoneInputDialog.OnModifySetListener() {
-                    @Override
-                    public void onModify(String newPhone) {
-                        phoneList.get(position).Phone = newPhone;
-                        adapter.notifyItemChanged(position);
-                    }
-                });
-                dialog.show();
+                showItemPopup( view, phoneList.get(position));
+
+//                ModifyPhoneInputDialog dialog = new ModifyPhoneInputDialog(DetailActivity.this, phoneList.get(position).Phone);
+//                dialog.setOnIntervalSetListener(new ModifyPhoneInputDialog.OnModifySetListener() {
+//                    @Override
+//                    public void onModify(String newPhone) {
+//                        phoneList.get(position).Phone = newPhone;
+//                        adapter.notifyItemChanged(position);
+//                    }
+//                });
+//                dialog.show();
 
 
             }
@@ -250,6 +280,83 @@ public class DetailActivity extends AppCompatActivity {
         calledButton.setAlpha(0.5f);
         uncalledButton.setAlpha(1f);
 
+
+
+        imgmore.setOnClickListener(view -> {
+            showPopup(view);
+        });
+    }
+
+    @SuppressLint("SuspiciousIndentation")
+    private void showPopup(View anchorView) {
+        quickPopupBuilder = QuickPopupBuilder.with(DetailActivity.this)
+                .contentView(R.layout.popup_detail_more)
+                .config(new QuickPopupConfig()
+                        .gravity(Gravity.LEFT | Gravity.BOTTOM)
+                        .withClick(R.id.tx_1, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                new XPopup.Builder(DetailActivity.this).asInputConfirm("重命名号码库", "请输入内容。",
+                                                new OnInputConfirmListener() {
+                                                    @Override
+                                                    public void onConfirm(String text) {
+                                                        bookBean.bookName = text;
+                                                        bookBean.save();
+                                                        tvTitle.setText(bookBean.bookName);
+                                                        quickPopup.dismiss();
+                                                    }
+                                                })
+                                        .show();
+                            }
+                        })
+                        .withClick(R.id.tx_2, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                bookBean.delete();
+                                finish();
+                                ToastUtils.showShort("已删除该号码库");
+                                quickPopup.dismiss();
+                            }
+                        })
+
+                );
+        quickPopup = quickPopupBuilder.build();
+        quickPopup.showPopupWindow(anchorView);
+    }
+
+
+    @SuppressLint("SuspiciousIndentation")
+    private void showItemPopup(View anchorView, PhoneBean phoneBean) {
+        quickPopupBuilder = QuickPopupBuilder.with(DetailActivity.this)
+                .contentView(R.layout.popup_detail_item_more)
+                .config(new QuickPopupConfig()
+                        .gravity(Gravity.LEFT | Gravity.BOTTOM)
+                        .withClick(R.id.tx_1, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // 呼叫
+                                callPhoneNumber(phoneBean.Phone, 0);
+                                quickPopup.dismiss();
+                            }
+                        })
+                        .withClick(R.id.tx_2, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                new XPopup.Builder(DetailActivity.this).asConfirm("确认弹窗", "是否删除号码",
+                                                new OnConfirmListener() {
+                                                    @Override
+                                                    public void onConfirm() {
+                                                        phoneBean.delete();
+                                                        quickPopup.dismiss();
+                                                    }
+                                                })
+                                        .show();
+                            }
+                        })
+
+                );
+        quickPopup = quickPopupBuilder.build();
+        quickPopup.showPopupWindow(anchorView);
     }
 
     public void refreshUI() {
@@ -500,6 +607,41 @@ public class DetailActivity extends AppCompatActivity {
     }
 
 
+    public void callPhoneNumber(String phone, int simIndex) {
+
+        String phoneNum = phone;
+
+        Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNum));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("com.android.phone.force.slot", true);
+        intent.putExtra("Cdma_Supp", true);
+        //Add all slots here, according to device.. (different device require different key so put all together)
+        for (String s : simSlotName)
+            intent.putExtra(s, simIndex); //0 or 1 according to sim.......
+        //works only for API >= 21
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                TelecomManager telecomManager = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                List<PhoneAccountHandle> phoneAccountHandleList = telecomManager.getCallCapablePhoneAccounts();
+                intent.putExtra("android.telecom.extra.PHONE_ACCOUNT_HANDLE", phoneAccountHandleList.get(simIndex));
+            } catch (Exception e) {
+                e.printStackTrace();
+                //writeLog("No Sim card? at slot " + simNumber+"\n\n"+e.getMessage(), this);
+            }
+        }
+        startActivity(intent);
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(MessageEvent event) {
         // 处理事件
@@ -519,6 +661,7 @@ public class DetailActivity extends AppCompatActivity {
 
 
     public void gotoCallPhone() {
+        if (!是否在循环播号) return;
         if (phoneList.size()<1) {
             ToastUtils.showShort("还未导入xls文件");
             return;

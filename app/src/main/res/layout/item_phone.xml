@@ -39,15 +39,17 @@
         android:src="@drawable/lib_ui_ic_general_right_arrow1"
         />
 
-    <TextView
+    <ImageView
         android:id="@+id/xiugai"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:padding="6dp"
         android:textColor="@color/black"
         android:layout_toLeftOf="@+id/img"
         android:layout_marginRight="8dp"
-        android:text="修改"
+        android:src="@drawable/modify"
         android:layout_centerVertical="true"
+        android:scaleType="centerCrop"
         />
 
 </RelativeLayout>

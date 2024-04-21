@@ -27,6 +27,7 @@ import java.util.List;
 
 import razerdp.basepopup.QuickPopupBuilder;
 import razerdp.basepopup.QuickPopupConfig;
+import razerdp.widget.QuickPopup;
 
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -46,6 +47,7 @@ public class DashboardFragment extends Fragment {
 
     ImageView addbook;
     ImageView imgnodata;
+    QuickPopup quickPopup;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -68,14 +70,19 @@ public class DashboardFragment extends Fragment {
             startActivity(intent);
         });
 
+
+        return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         initBooks();
         initPopupWindow();
         // 点击按钮显示PopupWindow
         addbook.setOnClickListener(v -> showPopup(v));
 
-        return rootView;
     }
-
 
     private void initBooks() {
         List<BookBean> listTemp = LitePal.findAll(BookBean.class);
@@ -109,6 +116,7 @@ public class DashboardFragment extends Fragment {
                                                         bookBean.bookName = text;
                                                         bookBean.save();
                                                         initBooks();
+                                                        quickPopup.dismiss();
                                                     }
                                                 })
                                         .show();
@@ -118,11 +126,13 @@ public class DashboardFragment extends Fragment {
                             @Override
                             public void onClick(View v) {
                                 Toast.makeText(getContext(), "clicked", Toast.LENGTH_LONG).show();
+                                quickPopup.dismiss();
                             }
                         })
 
                 );
-                quickPopupBuilder.show(anchorView);
+                quickPopup = quickPopupBuilder.build();
+                quickPopup.showPopupWindow(anchorView);
     }
 
     private void initPopupWindow(){
