@@ -8,7 +8,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.lucas.xxcall.PhoneBean;
 import com.lucas.xxcall.R;
 import com.lucas.xxcall.bean.BookBean;
 
@@ -41,7 +40,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.PhoneV
         BookBean bookBean = bookList.get(position);
         holder.book.setText(bookBean.bookName);
 
-        holder.xiugai.setOnClickListener(v->{
+        holder.root.setOnClickListener(v->{
             if (position != RecyclerView.NO_POSITION) {
                 onPhoneItemClickListener.onItemClick(position);
             }
@@ -56,11 +55,13 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.PhoneV
     static class PhoneViewHolder extends RecyclerView.ViewHolder {
         TextView book;
         TextView xiugai;
+        View root;
 
         public PhoneViewHolder(@NonNull View itemView) {
             super(itemView);
             book = itemView.findViewById(R.id.book);
             xiugai = itemView.findViewById(R.id.xiugai);
+            root = itemView.findViewById(R.id.root);
         }
     }
 

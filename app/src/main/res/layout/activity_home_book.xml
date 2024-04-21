@@ -30,7 +30,9 @@
             android:layout_height="46dp"
             android:layout_alignParentLeft="true"
             android:padding="10dp"
-            android:src="@mipmap/blackback" />
+            android:src="@mipmap/blackback"
+            android:visibility="gone"
+            />
 
         <ImageView
             android:id="@+id/addbook"
@@ -63,9 +65,8 @@
         android:id="@+id/imgnodata"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:src="@drawable/nodata"
         android:layout_centerInParent="true"
-        />
+        android:src="@drawable/nodata" />
 
 
 

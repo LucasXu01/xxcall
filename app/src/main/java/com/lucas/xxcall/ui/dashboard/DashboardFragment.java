@@ -1,5 +1,7 @@
 package com.lucas.xxcall.ui.dashboard;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -13,9 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.lucas.xxcall.bean.BookBean;
-import com.lucas.xxcall.widgets.ModifyPhoneInputDialog;
-import com.lucas.xxcall.PhoneBean;
 import com.lucas.xxcall.R;
+import com.lucas.xxcall.ui.detail.DetailActivity;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 
@@ -62,7 +63,9 @@ public class DashboardFragment extends Fragment {
         adapter = new BookListAdapter(bookList);
         recyclerView.setAdapter(adapter);
         adapter.setOnPhoneItemClickListener(position -> {
-
+            Intent intent = new Intent(getActivity(), DetailActivity.class);
+            intent.putExtra("bookid", bookList.get(position).bookId);
+            startActivity(intent);
         });
 
         initBooks();
@@ -89,8 +92,9 @@ public class DashboardFragment extends Fragment {
     }
 
 
+    @SuppressLint("SuspiciousIndentation")
     private void showPopup(View anchorView) {
-        quickPopupBuilder = QuickPopupBuilder.with(getContext())
+        quickPopupBuilder = QuickPopupBuilder.with(getActivity())
                 .contentView(R.layout.popup_normal)
                 .config(new QuickPopupConfig()
                         .gravity(Gravity.LEFT | Gravity.BOTTOM)
