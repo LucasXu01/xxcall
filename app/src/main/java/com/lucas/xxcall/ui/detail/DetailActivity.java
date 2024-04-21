@@ -43,6 +43,7 @@ import org.litepal.LitePal;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import jxl.Cell;
@@ -99,6 +100,7 @@ public class DetailActivity extends AppCompatActivity {
 
         Long bookid = getIntent().getLongExtra("bookid", 1l);
         bookBean = LitePal.where("bookid = ?", String.valueOf(bookid)).findFirst(BookBean.class, true);
+        bookBean.phoneBeans = LitePal.where("bookid = ?", String.valueOf(bookid)).find(PhoneBean.class);
 
 
 
@@ -241,6 +243,13 @@ public class DetailActivity extends AppCompatActivity {
 
 
 
+        refreshUI();
+        phoneList.addAll(bookBean.phoneBeans);
+        adapter.notifyDataSetChanged();
+
+        calledButton.setAlpha(0.5f);
+        uncalledButton.setAlpha(1f);
+
     }
 
     public void refreshUI() {
@@ -367,10 +376,21 @@ public class DetailActivity extends AppCompatActivity {
 
 
     public void refreshData(List<PhoneBean> rawList) {
+        if (rawList == null || rawList.size() < 1) return;
         phoneList.clear();
         phoneList.addAll(rawList);
         adapter.notifyDataSetChanged();
         rawList.clear();
+
+        List<PhoneBean> phoneBeansTemp = LitePal.where("bookid = ?", String.valueOf(bookBean.bookId)).find(PhoneBean.class);
+        for (PhoneBean phoneBean : phoneBeansTemp) {
+            phoneBean.delete();
+        }
+
+        for (PhoneBean phoneBean : phoneList) {
+            phoneBean.bookid = bookBean.bookId;
+            phoneBean.save();
+        }
         bookBean.phoneBeans = phoneList;
         bookBean.save();
         refreshUI();
@@ -445,6 +465,7 @@ public class DetailActivity extends AppCompatActivity {
 
         PhoneBean phoneBean = phoneList.get(position);
         phoneList.get(position).isCalled = true;
+        phoneList.get(position).save();
         String phoneNum = phoneBean.Phone;
 
         Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + phoneNum));

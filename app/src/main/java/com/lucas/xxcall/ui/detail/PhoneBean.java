@@ -12,6 +12,8 @@ public class PhoneBean extends LitePalSupport implements Serializable {
     @Column(unique = true, defaultValue = "unknown")
     public Long phoneId;
 
+    public Long bookid;
+
     public String Phone;
     public String Name;
     public boolean isCalled;
