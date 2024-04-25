@@ -54,69 +54,6 @@
 
 
 
-    <RelativeLayout
-        android:id="@+id/re"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/box_head"
-        >
-
-        <Button
-            android:id="@+id/button_select_file"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:text="导入新excel文件(必须为.xls文件)"
-            android:textSize="12dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginHorizontal="15dp"
-            android:textAllCaps="false"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/img"
-            />
-
-        <ImageView
-            android:id="@+id/img"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="14dp"
-            android:src="@mipmap/tips"
-            android:layout_centerVertical="true"
-            />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/re2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/re"
-        >
-
-        <Button
-            android:id="@+id/button_add_from_clipboard"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:text="导入剪切板"
-            android:textSize="12dp"
-            android:layout_centerHorizontal="true"
-            android:layout_marginHorizontal="15dp"
-            android:textAllCaps="false"
-            android:layout_toLeftOf="@+id/img2"
-
-            />
-
-        <ImageView
-            android:id="@+id/img2"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="14dp"
-            android:src="@mipmap/tips"
-            android:layout_centerVertical="true"
-            />
-    </RelativeLayout>
-
-
 
     <LinearLayout
         android:id="@+id/linear"
@@ -124,7 +61,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginHorizontal="15dp"
-        android:layout_below="@+id/re2"
+        android:layout_below="@+id/box_head"
         >
 
         <Button
@@ -213,5 +150,15 @@
 
 
 
+    <ImageView
+        android:id="@+id/img_add"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/addphones"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="50dp"
+        />
 
 </RelativeLayout>

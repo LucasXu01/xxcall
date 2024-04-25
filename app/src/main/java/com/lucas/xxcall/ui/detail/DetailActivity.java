@@ -74,9 +74,6 @@ public class DetailActivity extends AppCompatActivity {
     private Button button_dual_sim_settings;
     private Button button_interval_duration;
     private Button button_start_auto_dial;
-    private Button button;
-    private ImageView img;
-    private ImageView img2;
     private RecyclerView recyclerView;
     private PhoneAdapter adapter;
     private List<PhoneBean> phoneList = new ArrayList<>();
@@ -86,7 +83,6 @@ public class DetailActivity extends AppCompatActivity {
 
     Button uncalledButton;
     Button calledButton;
-    Button button_add_from_clipboard;
 
     public int Position = 0;
     public BookBean bookBean;
@@ -98,7 +94,9 @@ public class DetailActivity extends AppCompatActivity {
     TextView tvTitle;
 
     QuickPopup quickPopup;
+    QuickPopup quickPopup3;
     QuickPopup quickPopup2;
+    ImageView img_add;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,28 +121,16 @@ public class DetailActivity extends AppCompatActivity {
         bookBean.phoneBeans = LitePal.where("bookid = ?", String.valueOf(bookid)).find(PhoneBean.class);
 
 
+        img_add = findViewById(R.id.img_add);
         tvTitle = findViewById(R.id.tv_title);
         tvTitle.setText(bookBean.bookName);
 
         imgmore = findViewById(R.id.imgmore);
 
-        button_add_from_clipboard = findViewById(R.id.button_add_from_clipboard);
         button_dual_sim_settings = findViewById(R.id.button_dual_sim_settings);
         button_start_auto_dial = findViewById(R.id.button_start_auto_dial);
         button_interval_duration = findViewById(R.id.button_interval_duration);
-        // 点击按钮触发文件选择操作
-        button = findViewById(R.id.button_select_file);
-        button.setOnClickListener(view -> pickExcelFile());
-        img2 = findViewById(R.id.img2);
-        img2.setOnClickListener(view -> {
-            CustomDialog2 dialog = new CustomDialog2(this);
-            dialog.show();
-        });
-        img = findViewById(R.id.img);
-        img.setOnClickListener(view -> {
-            CustomDialog dialog = new CustomDialog(this);
-            dialog.show();
-        });
+
         button_interval_duration.setOnClickListener(v -> {
             IntervalInputDialog dialog = new IntervalInputDialog(this);
             dialog.setOnIntervalSetListener(new IntervalInputDialog.OnIntervalSetListener() {
@@ -232,28 +218,6 @@ public class DetailActivity extends AppCompatActivity {
 
 
 
-        // 导入剪切板
-        button_add_from_clipboard.setOnClickListener(v->{
-            ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            if (clipboardManager != null && clipboardManager.hasPrimaryClip()) {
-                CharSequence clipboardText = clipboardManager.getPrimaryClip().getItemAt(0).getText();
-                if (!TextUtils.isEmpty(clipboardText)) {
-                    List<PhoneBean> clipboardList = parseClipboardText(clipboardText.toString());
-
-                    //添加到列表中
-                    if (clipboardList != null && clipboardList.size() >0){
-                        List<PhoneBean> rawList = new ArrayList<>();
-                        rawList.addAll(phoneList);
-                        rawList.addAll(0, clipboardList);
-                        refreshData(rawList);
-                    }
-                }
-            }
-
-        });
-
-
-
         refreshUI();
         for (PhoneBean phoneBean: bookBean.phoneBeans) {
             if (phoneBean.isCalled == false) {
@@ -270,6 +234,12 @@ public class DetailActivity extends AppCompatActivity {
         imgmore.setOnClickListener(view -> {
             showPopup(view);
         });
+
+        img_add.setOnClickListener(view -> {
+            showPopup3(view);
+        });
+
+
     }
 
     @SuppressLint("SuspiciousIndentation")
@@ -309,6 +279,60 @@ public class DetailActivity extends AppCompatActivity {
         quickPopup.showPopupWindow(anchorView);
     }
 
+    @SuppressLint("SuspiciousIndentation")
+    private void showPopup3(View anchorView) {
+        quickPopupBuilder = QuickPopupBuilder.with(DetailActivity.this)
+                .contentView(R.layout.popup_add_phone)
+                .config(new QuickPopupConfig()
+                        .gravity(Gravity.LEFT | Gravity.TOP)
+                        .withClick(R.id.button_select_file, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                pickExcelFile();
+                                quickPopup3.dismiss();
+                            }
+                        })
+                        .withClick(R.id.img, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                CustomDialog dialog = new CustomDialog(DetailActivity.this);
+                                dialog.show();
+                            }
+                        })
+                        .withClick(R.id.button_add_from_clipboard, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // 导入剪切板
+                                ClipboardManager clipboardManager = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                if (clipboardManager != null && clipboardManager.hasPrimaryClip()) {
+                                    CharSequence clipboardText = clipboardManager.getPrimaryClip().getItemAt(0).getText();
+                                    if (!TextUtils.isEmpty(clipboardText)) {
+                                        List<PhoneBean> clipboardList = parseClipboardText(clipboardText.toString());
+
+                                        //添加到列表中
+                                        if (clipboardList != null && clipboardList.size() >0){
+                                            List<PhoneBean> rawList = new ArrayList<>();
+                                            rawList.addAll(phoneList);
+                                            rawList.addAll(0, clipboardList);
+                                            refreshData(rawList);
+                                        }
+                                    }
+                                }
+                                quickPopup3.dismiss();
+                            }
+                        })
+                        .withClick(R.id.img2, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                CustomDialog2 dialog = new CustomDialog2(DetailActivity.this);
+                                dialog.show();
+                            }
+                        })
+
+                );
+        quickPopup3 = quickPopupBuilder.build();
+        quickPopup3.showPopupWindow(anchorView);
+    }
 
     @SuppressLint("SuspiciousIndentation")
     private void showItemPopup(View anchorView, PhoneBean phoneBean) {
