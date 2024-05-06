@@ -40,6 +40,7 @@ import com.lucas.xxcall.widgets.CustomDialog;
 import com.lucas.xxcall.widgets.CustomDialog2;
 import com.lucas.xxcall.widgets.IntervalInputDialog;
 import com.lucas.xxcall.widgets.ModifyPhoneInputDialog;
+import com.lucas.xxcall.widgets.PhineNumberInputDialog;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnInputConfirmListener;
@@ -328,6 +329,59 @@ public class DetailActivity extends AppCompatActivity {
                                 dialog.show();
                             }
                         })
+                        .withClick(R.id.button_add_from_input, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+                                PhineNumberInputDialog dialog = new PhineNumberInputDialog(DetailActivity.this);
+                                dialog.setOnIntervalSetListener(new PhineNumberInputDialog.OnModifySetListener() {
+                                    @Override
+                                    public void onModify(String text) {
+
+                                        CharSequence clipboardText = text;
+                                        if (!TextUtils.isEmpty(clipboardText)) {
+                                            List<PhoneBean> clipboardList = parseClipboardText(clipboardText.toString());
+
+                                            //添加到列表中
+                                            if (clipboardList != null && clipboardList.size() > 0) {
+                                                List<PhoneBean> rawList = new ArrayList<>();
+                                                rawList.addAll(phoneList);
+                                                rawList.addAll(0, clipboardList);
+                                                refreshData(rawList);
+                                            }
+                                        }
+
+                                    }
+                                });
+                                dialog.show();
+
+
+//                                new XPopup.Builder(DetailActivity.this).asInputConfirm("手动录入", "规则同剪切板（每一行为：李雷 156712345657）",
+//                                                "\n\n\n\n\n\n\n",
+//                                                new OnInputConfirmListener() {
+//                                                    @Override
+//                                                    public void onConfirm(String text) {
+//
+//                                                        CharSequence clipboardText = text;
+//                                                        if (!TextUtils.isEmpty(clipboardText)) {
+//                                                            List<PhoneBean> clipboardList = parseClipboardText(clipboardText.toString());
+//
+//                                                            //添加到列表中
+//                                                            if (clipboardList != null && clipboardList.size() >0){
+//                                                                List<PhoneBean> rawList = new ArrayList<>();
+//                                                                rawList.addAll(phoneList);
+//                                                                rawList.addAll(0, clipboardList);
+//                                                                refreshData(rawList);
+//                                                            }
+//                                                        }
+//
+//                                                        quickPopup3.dismiss();
+//                                                    }
+//                                                })
+//                                        .show();
+                            }
+                        })
+
 
                 );
         quickPopup3 = quickPopupBuilder.build();
